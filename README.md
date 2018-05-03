@@ -1,2 +1,2 @@
 # PyDBJobAdvertFilter
-An app designed to filter in database
+A small script in python designed to filter in database
