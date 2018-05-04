@@ -1,6 +1,6 @@
 from mysql.connector import connect, Error
-import os
 from bs4 import BeautifulSoup
+import os
 import bs4
 import re
 import datetime
@@ -9,8 +9,6 @@ import sys
 
 
 class FilterDB:
-    def __init__(self):
-        pass
 
     def runFilter(self):
         try:
@@ -31,7 +29,7 @@ class FilterDB:
                 searchable_body = self.walker(soup)
                 self.insertToDB(searchable_body=searchable_body, condition=_id)
                 sys.stdout.flush()
-                #print(searchable_body )
+                # print(searchable_body )
             elapsed = time.time() - startTimer
             duration = time.strftime('%H:%M:%S', time.gmtime(elapsed))
             print('Took: %s' % duration)
@@ -62,7 +60,8 @@ class FilterDB:
                                  host=os.environ['MYSQL_HOST'],
                                  database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             cursor = connection.cursor()
-            print('{%s}: Inserting searchable_body with id: %d ' % (datetime.datetime.now().strftime('%H:%M:%S'), condition))
+            print('{%s}: Inserting searchable_body with id: %d ' % (
+            datetime.datetime.now().strftime('%H:%M:%S'), condition))
             searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'", " ")
             cursor.execute("UPDATE annonce SET searchable_body = '%s' WHERE _id = %d" % (searchable_body, condition))
             connection.commit()
