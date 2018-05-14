@@ -17,7 +17,7 @@ class FilterDB:
                           database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             fetchCursor = cnx.cursor()
             print('Now connecting to....: %s' % cnx.server_host)
-            fetchCursor.execute('select _id,body  from annonce')
+            fetchCursor.execute('SELECT _id,body  FROM annonce where searchable_body IS NULL')
             print('Successfully connected to: %s' % cnx.server_host)
             startTimer = time.time()
             print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'))
