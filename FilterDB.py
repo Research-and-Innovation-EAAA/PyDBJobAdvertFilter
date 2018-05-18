@@ -41,16 +41,19 @@ class FilterDB:
 
     def walker(self, node):
         result = ''
-        if node.name is not None and node.name not in ['script', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
-                                                       'button', 'selecr', 'option', 'optiongroup', 'fieldset',
+        if node.name is None or node.name in ['script', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
+                                                       'button', 'select', 'option', 'optiongroup', 'fieldset',
                                                        'label']:
-            for child in node.children:
-                if type(child) is bs4.element.NavigableString:
-                    cookieText = 'Websitet anvender cookies til at huske dine indstillinger, statistik og'
-                    if cookieText not in child.string:
-                        result += child.string
-                else:
-                    result += self.walker(child)
+            return
+        if node.name == 'div' and node.has_attr('heart_job_offers'):
+            return
+        for child in node.children:
+            if type(child) is bs4.element.NavigableString:
+                cookieText = 'Websitet anvender cookies til at huske dine indstillinger, statistik og'
+                if cookieText not in child.string:
+                    result += child.string
+            else:
+                result += self.walker(child)
 
         return result
 
