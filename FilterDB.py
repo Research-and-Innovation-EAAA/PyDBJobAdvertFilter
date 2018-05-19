@@ -42,8 +42,8 @@ class FilterDB:
     def walker(self, node):
         result = ''
         if node.name is None or node.name in ['script', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
-                                                       'button', 'select', 'option', 'optiongroup', 'fieldset',
-                                                       'label']:
+                                              'button', 'select', 'option', 'optiongroup', 'fieldset',
+                                              'label']:
             return
         if node.name == 'div' and node.has_attr('heart_job_offers'):
             return
@@ -64,7 +64,7 @@ class FilterDB:
                                  database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             cursor = connection.cursor()
             print('{%s}: Inserting searchable_body with id: %d ' % (
-            datetime.datetime.now().strftime('%H:%M:%S'), condition))
+                datetime.datetime.now().strftime('%H:%M:%S'), condition))
             searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'", " ")
             cursor.execute("UPDATE annonce SET searchable_body = '%s' WHERE _id = %d" % (searchable_body, condition))
             connection.commit()
