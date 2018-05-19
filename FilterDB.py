@@ -22,6 +22,8 @@ class FilterDB:
             startTimer = time.time()
             print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'))
             for _id, body in fetchCursor:
+                print("_id: %s" % _id)
+                print("fetchCursor: %s" % fetchCursor)
                 convertToSting = str(body)
                 removespaces = re.compile(r'\s+')
                 advertBody = re.sub(removespaces, ' ', convertToSting)
@@ -44,15 +46,16 @@ class FilterDB:
         if node.name is None or node.name in ['script', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
                                               'button', 'select', 'option', 'optiongroup', 'fieldset',
                                               'label']:
-            return
-        if node.name == 'div' and node.has_attr('heart_job_offers'):
-            return
+            return result
+        if node.name == 'div' and node.get('id') == 'heart_job_offers':
+                return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
                 cookieText = 'Websitet anvender cookies til at huske dine indstillinger, statistik og'
                 if cookieText not in child.string:
                     result += child.string
             else:
+                print("child: %s" % child)
                 result += self.walker(child)
 
         return result
