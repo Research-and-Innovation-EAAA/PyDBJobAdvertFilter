@@ -22,8 +22,8 @@ class FilterDB:
             startTimer = time.time()
             print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'))
             for _id, body in fetchCursor:
-                print("_id: %s" % _id)
-                print("fetchCursor: %s" % fetchCursor)
+                #print("_id: %s" % _id)
+                #print("fetchCursor: %s" % fetchCursor)
                 convertToSting = str(body)
                 removespaces = re.compile(r'\s+')
                 advertBody = re.sub(removespaces, ' ', convertToSting)
@@ -55,7 +55,7 @@ class FilterDB:
                 if cookieText not in child.string:
                     result += child.string
             else:
-                print("child: %s" % child)
+                #print("child: %s" % child)
                 result += self.walker(child)
 
         return result
