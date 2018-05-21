@@ -50,22 +50,19 @@ class FilterDB:
         if node.name == 'div' and node.get('id') == 'heart_job_offers':
                 return result
         for child in node.children:
+            filterTexts = ['Websitet anvender cookies til at huske dine indstillinger, statistik og',
+                           'Aktiver JavaScript for at',
+                           'need a browser with JavaScript support',
+                           'Enable JavaScript in your browser',
+                           'JavaScript is currently disabled',
+                           'website uses JavaScript',
+                           'bruger cookies',
+                           'anvender cookies']
             if type(child) is bs4.element.NavigableString:
-                cookieText = 'Websitet anvender cookies til at huske dine indstillinger, statistik og'
-                if cookieText not in child.string:
-                    cookieText = 'Aktiver JavaScript for at'
-                    if cookieText not in child.string:
-                        cookieText = 'need a browser with JavaScript support'
-                        if cookieText not in child.string:
-                            cookieText = 'JavaScript is turned off'
-                            if cookieText not in child.string:
-                                cookieText = 'Enable JavaScript in your browser'
-                                if cookieText not in child.string:
-                                    cookieText = 'JavaScript is currently disabled'
-                                    if cookieText not in child.string:
-                                        cookieText = 'website uses JavaScript'
-                                        if cookieText not in child.string:
-                                            result += child.string
+                for filterText in filterTexts:
+                    if filterText in child.string:
+                        continue
+                result += child.string
             else:
                 #print("child: %s" % child)
                 result += self.walker(child)
