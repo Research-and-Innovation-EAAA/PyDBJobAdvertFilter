@@ -55,9 +55,13 @@ class FilterDB:
                            'need a browser with JavaScript support',
                            'Enable JavaScript in your browser',
                            'JavaScript is currently disabled',
-                           'website uses JavaScript',
+                           'JavaScript is turned',
+                           'JavaScript enabled',
                            'bruger cookies',
-                           'anvender cookies']
+                           'anvender cookies',
+                           'use cookies',
+                           'JavaScript enabled',
+                           'use of cookies']
             if type(child) is bs4.element.NavigableString:
                 found = False
                 for filterText in filterTexts:
