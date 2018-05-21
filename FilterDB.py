@@ -59,7 +59,9 @@ class FilterDB:
                         if cookieText not in child.string:
                             cookieText = 'JavaScript is turned off'
                             if cookieText not in child.string:
-                                result += child.string
+                                cookieText = 'Enable JavaScript in your browser'
+                                if cookieText not in child.string:
+                                    result += child.string
             else:
                 #print("child: %s" % child)
                 result += self.walker(child)
