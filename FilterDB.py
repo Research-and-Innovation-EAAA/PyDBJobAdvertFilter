@@ -51,8 +51,8 @@ class FilterDB:
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
-                searchTexts = ['(dine?|ikke|disse|bort|(b|B)rowser.{0,50}|set|websted| en|til| de|(S|s)ome|will|synkronisere|slette(r|s)?( du)?|lger?|rence|nvend(er|es|te)?|bru(g|k)er?|(u|U)ses?|a(f|v)|vi|(A|a)ccept(erer|er)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
-                               '(c|C)ookies? (p|enable|(b|B)rowser.{0,50}|on|help|hj|are|er|in|bruge|that|contain|anvende|fra|(p|P)(olicy|olitik)|will)',
+                searchTexts = ['(dine?|ikke|disse|bort|(b|B)rowser(.){0,50}|set|websted| en|til| de|(S|s)ome|will|synkronisere|slette(r|s)?( du)?|lger?|rence|nvend(er|es|te)?|bru(g|k)er?|(u|U)ses?|a(f|v)|vi|(A|a)ccept(erer|er)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
+                               '(c|C)ookies? (p|enable|(b|B)rowser(.){0,50}|on|help|hj|are|er|in|bruge|that|contain|anvende|fra|(p|P)(olicy|olitik)|will)',
                                '(j|J)ava(s|S)cript (enable|support|in|is|)',
                                '(ktiver|with|nable) (j|J)ava(s|S)cript']
                 matchTexts = ['( )*(c|C)ookies?( |\.|\?)*']
