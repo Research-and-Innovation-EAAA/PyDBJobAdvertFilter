@@ -51,7 +51,7 @@ class FilterDB:
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
-                searchTexts = ['(nvender?|bruger?|(u|U)ses?|af|vi|ccept(erer)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
+                searchTexts = ['(slette|lger?|rence|nvender?|bruger?|(u|U)ses?|af|vi|ccept(erer)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
                                '(c|C)ookies? (p|enable|on|help|hj|are|er|in|bruge|that|contain|anvende|fra)',
                                '(j|J)ava(s|S)cript (enable|support|in|is|)',
                                '(ktiver|with|nable) (j|J)ava(s|S)cript']
