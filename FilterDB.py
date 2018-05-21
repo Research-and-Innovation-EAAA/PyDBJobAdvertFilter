@@ -51,53 +51,13 @@ class FilterDB:
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
-                filterTexts = ['Websitet anvender cookies til at huske dine indstillinger, statistik og',
-                               'Aktiver JavaScript for at',
-                               'need a browser with JavaScript support',
-                               'Enable JavaScript in your browser',
-                               'JavaScript is currently disabled',
-                               'JavaScript is turned',
-                               'JavaScript enable',
-                               'ookies enable',
-                               'bruger cookies',
-                               'of cookies',
-                               'ookies on',
-                               'ookies help',
-                               'ookies hj',
-                               'af cookies',
-                               'vi cookies',
-                               'accept cookies',
-                               'brugen af cookies',
-                               'anvendelse af cookies',
-                               'accepterer cookies',
-                               'anvender cookies',
-                               'use cookies',
-                               'benytter cookies',
-                               'about cookies',
-                               'ookies are',
-                               'ookies er',
-                               'ookie er',
-                               'ookies in',
-                               'om cookies',
-                               'ookies bruge',
-                               'ookies that',
-                               'ookies which',
-                               'ookies anvende',
-                               'bruges cookies',
-                               'vores cookies',
-                               'bruge cookies',
-                               'tter cookies',
-                               'elle cookies',
-                               'ookies p',
-                               'af cookies',
-                               'cookies fra',
-                               'uses cookies',
-                               'brug af cookies',
-                               'JavaScript enabled',
-                               'use of cookies']
+                filterTexts = ['(nvender?|(u|U)ses?|af|vi|ccept(erer)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
+                               '(c|C)ookies? (enable|on|help|hj|are|er|in|bruge|that|contain|anvende|fra)',
+                               '(j|J)ava(s|S)cript (enable|support|in|is|)',
+                               '(ktiver|with|nable) (j|J)ava(s|S)cript']
                 found = False
-                for text in filterTexts:
-                    found = found or text in child.string
+                for filterExp in filterTexts:
+                    found = found or (re.search(filterExp, child.string) != None)
                 if not found:
                     result += child.string
             else:
