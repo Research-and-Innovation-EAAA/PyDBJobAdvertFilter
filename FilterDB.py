@@ -50,54 +50,51 @@ class FilterDB:
         if node.name == 'div' and node.get('id') == 'heart_job_offers':
                 return result
         for child in node.children:
-            filterTexts = ['Websitet anvender cookies til at huske dine indstillinger, statistik og',
-                           'Aktiver JavaScript for at',
-                           'need a browser with JavaScript support',
-                           'Enable JavaScript in your browser',
-                           'JavaScript is currently disabled',
-                           'JavaScript is turned',
-                           'JavaScript enable',
-                           'ookies enable',
-                           'bruger cookies',
-                           'of cookies',
-                           'ookies on',
-                           'ookies help',
-                           'ookies hj',
-                           'af cookies',
-                           'vi cookies',
-                           'accept cookies',
-                           'brugen af cookies',
-                           'anvendelse af cookies',
-                           'accepterer cookies',
-                           'anvender cookies',
-                           'use cookies',
-                           'benytter cookies',
-                           'about cookies',
-                           'ookies are',
-                           'ookies er',
-                           'om cookies',
-                           'ookies bruge',
-                           'ookies anvende',
-                           'bruges cookies',
-                           'bruge cookies',
-                           'ttr cookies',
-                           'ookies p',
-                           'af cookies',
-                           'cookies fra',
-                           'uses cookies',
-                           'brug af cookies',
-                           'JavaScript enabled',
-                           'use of cookies']
             if type(child) is bs4.element.NavigableString:
+                filterTexts = ['Websitet anvender cookies til at huske dine indstillinger, statistik og',
+                               'Aktiver JavaScript for at',
+                               'need a browser with JavaScript support',
+                               'Enable JavaScript in your browser',
+                               'JavaScript is currently disabled',
+                               'JavaScript is turned',
+                               'JavaScript enable',
+                               'ookies enable',
+                               'bruger cookies',
+                               'of cookies',
+                               'ookies on',
+                               'ookies help',
+                               'ookies hj',
+                               'af cookies',
+                               'vi cookies',
+                               'accept cookies',
+                               'brugen af cookies',
+                               'anvendelse af cookies',
+                               'accepterer cookies',
+                               'anvender cookies',
+                               'use cookies',
+                               'benytter cookies',
+                               'about cookies',
+                               'ookies are',
+                               'ookies er',
+                               'om cookies',
+                               'ookies bruge',
+                               'ookies anvende',
+                               'bruges cookies',
+                               'bruge cookies',
+                               'ttr cookies',
+                               'ookies p',
+                               'af cookies',
+                               'cookies fra',
+                               'uses cookies',
+                               'brug af cookies',
+                               'JavaScript enabled',
+                               'use of cookies']
                 found = False
-                for filterText in filterTexts:
-                    if filterText in child.string:
-                        found = True
-                        break
+                for text in filterTexts:
+                    found = found or text in child.string
                 if not found:
                     result += child.string
             else:
-                #print("child: %s" % child)
                 result += self.walker(child)
 
         return result
