@@ -58,8 +58,15 @@ class FilterDB:
                            'JavaScript is turned',
                            'JavaScript enabled',
                            'bruger cookies',
+                           'brug af cookies',
+                           'brugen af cookies',
+                           'anvendelse af cookies',
+                           'accepterer cookies',
                            'anvender cookies',
                            'use cookies',
+                           'cookies fra',
+                           'uses cookies',
+                           'brug af cookies',
                            'JavaScript enabled',
                            'use of cookies']
             if type(child) is bs4.element.NavigableString:
