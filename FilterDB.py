@@ -59,10 +59,13 @@ class FilterDB:
                            'bruger cookies',
                            'anvender cookies']
             if type(child) is bs4.element.NavigableString:
+                found = False
                 for filterText in filterTexts:
                     if filterText in child.string:
-                        continue
-                result += child.string
+                        found = True
+                        break
+                if not found:
+                    result += child.string
             else:
                 #print("child: %s" % child)
                 result += self.walker(child)
