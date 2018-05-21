@@ -51,13 +51,16 @@ class FilterDB:
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
-                filterTexts = ['(nvender?|bruger?|(u|U)ses?|af|vi|ccept(erer)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
-                               '(c|C)ookies? (enable|on|help|hj|are|er|in|bruge|that|contain|anvende|fra)',
+                searchTexts = ['(nvender?|bruger?|(u|U)ses?|af|vi|ccept(erer)?|tter|bout|(o|O)m|to|vores|bruges?|elle|of) (c|C)ookie',
+                               '(c|C)ookies? (p|enable|on|help|hj|are|er|in|bruge|that|contain|anvende|fra)',
                                '(j|J)ava(s|S)cript (enable|support|in|is|)',
                                '(ktiver|with|nable) (j|J)ava(s|S)cript']
+                matchTexts = ['Cookies']
                 found = False
-                for filterExp in filterTexts:
+                for filterExp in searchTexts:
                     found = found or (re.search(filterExp, child.string) != None)
+                for filterExp in matchTexts:
+                    found = found or (re.match(filterExp, child.string) != None)
                 if not found:
                     result += child.string
             else:
