@@ -53,7 +53,9 @@ class FilterDB:
             if type(child) is bs4.element.NavigableString:
                 cookieText = 'Websitet anvender cookies til at huske dine indstillinger, statistik og'
                 if cookieText not in child.string:
-                    result += child.string
+                    cookieText = 'Aktiver JavaScript for at'
+                    if cookieText not in child.string:
+                        result += child.string
             else:
                 #print("child: %s" % child)
                 result += self.walker(child)
