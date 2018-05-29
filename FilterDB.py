@@ -11,6 +11,8 @@ import sys
 class FilterDB:
 
     def runFilter(self):
+        global fetchCursor
+        global cnx
         try:
             cnx = connect(user=os.environ['MYSQL_USER'], password=os.environ['MYSQL_PASSWORD'],
                           host=os.environ['MYSQL_HOST'],
@@ -42,7 +44,7 @@ class FilterDB:
     def walker(self, node):
         result = ''
         if node.name is not None and node.name not in ['script', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
-                                                       'button', 'selecr', 'option', 'optiongroup', 'fieldset',
+                                                       'button', 'select', 'option', 'optiongroup', 'fieldset',
                                                        'label']:
             for child in node.children:
                 if type(child) is bs4.element.NavigableString:
@@ -55,6 +57,8 @@ class FilterDB:
         return result
 
     def insertToDB(self, searchable_body, condition):
+        global connection
+        global cursor
         try:
             connection = connect(user=os.environ['MYSQL_USER'], password=os.environ['MYSQL_PASSWORD'],
                                  host=os.environ['MYSQL_HOST'],
