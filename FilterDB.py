@@ -17,7 +17,7 @@ class FilterDB:
                           database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             fetchCursor = cnx.cursor()
             print('Now connecting to....: %s' % cnx.server_host)
-            fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL')
+            fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
             print('Successfully connected to: %s' % cnx.server_host)
             startTimer = time.time()
             print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'))
@@ -51,14 +51,20 @@ class FilterDB:
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
-                searchTexts = ['(c|C)ookies?'
+                searchTexts = ['(c|C)ookies?',
                                '(j|J)ava(s|S)cript (enable|support|in|is|)',
                                '(ktiver|with|nable) (j|J)ava(s|S)cript']
+                replaceTexts = [("kort(.{1,80})C","kort\1Ckort"),
+                                ("C(.{1,80})kort","Ckort\1kort")]
+
                 found = False
                 for filterExp in searchTexts:
                     found = found or (re.search(filterExp, child.string) != None)
                 if not found:
-                    result += child.string
+                    childString = child.string
+                    for replaceTuple in replaceTexts:
+                        childString = re.sub(replaceTuple[0],replaceTuple[1],childString);
+                    result += childString
             else:
                 result += self.walker(child)
 
@@ -73,7 +79,7 @@ class FilterDB:
             print('{%s}: Inserting searchable_body with id: %d ' % (
                 datetime.datetime.now().strftime('%H:%M:%S'), condition))
             searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'", " ")
-            cursor.execute("UPDATE annonce SET searchable_body = '%s' WHERE _id = %d" % (searchable_body, condition))
+            cursor.execute("UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (searchable_body, condition))
             connection.commit()
         except Error as e:
             # If there is any case of error - Rollback
