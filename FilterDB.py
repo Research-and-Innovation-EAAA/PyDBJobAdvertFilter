@@ -5,8 +5,6 @@ import bs4
 import re
 import datetime
 import time
-import sys
-
 
 class FilterDB:
 
@@ -16,27 +14,26 @@ class FilterDB:
                           host=os.environ['MYSQL_HOST'],
                           database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             fetchCursor = cnx.cursor()
-            print('Now connecting to....: %s' % cnx.server_host)
+            print('Now connecting to....: %s' % cnx.server_host, flush=True)
             fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
-            print('Successfully connected to: %s' % cnx.server_host)
+            print('Successfully connected to: %s' % cnx.server_host, flush=True)
             startTimer = time.time()
-            print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'))
+            print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'), flush=True)
             for _id, body in fetchCursor:
-                #print("_id: %s" % _id)
-                #print("fetchCursor: %s" % fetchCursor)
+                print("Inserting searchable_body for id: %s" % _id, flush=True)
+                #print("fetchCursor: %s" % fetchCursor, flush=True)
                 convertToSting = str(body)
                 removespaces = re.compile(r'\s+')
                 advertBody = re.sub(removespaces, ' ', convertToSting)
                 soup = BeautifulSoup(advertBody, 'html.parser')
                 searchable_body = self.walker(soup)
                 self.insertToDB(searchable_body=searchable_body, condition=_id)
-                sys.stdout.flush()
-                # print(searchable_body )
+                # print(searchable_body , flush=True)
             elapsed = time.time() - startTimer
             duration = time.strftime('%H:%M:%S', time.gmtime(elapsed))
-            print('Took: %s' % duration)
+            print('Took: %s' % duration, flush=True)
         except Error as e:
-            print(e.args)
+            print(e.args, flush=True)
         finally:
             fetchCursor.close()
             cnx.close()
@@ -76,14 +73,12 @@ class FilterDB:
                                  host=os.environ['MYSQL_HOST'],
                                  database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             cursor = connection.cursor()
-            print('{%s}: Inserting searchable_body with id: %d ' % (
-                datetime.datetime.now().strftime('%H:%M:%S'), condition))
             searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'", " ")
             cursor.execute("UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (searchable_body, condition))
             connection.commit()
         except Error as e:
             # If there is any case of error - Rollback
-            print(e.args)
+            print(e.args, flush=True)
             connection.rollback()
         finally:
             cursor.close()
