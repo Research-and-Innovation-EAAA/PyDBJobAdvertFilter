@@ -17,6 +17,7 @@ class FilterDB:
                           database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             fetchCursor = cnx.cursor()
             print('Now connecting to....: %s' % cnx.server_host, flush=True)
+            #fetchCursor.execute('SELECT _id,body FROM annonce where _id=290')
             fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
             print('Successfully connected to: %s' % cnx.server_host, flush=True)
             startTimer = time.time()
@@ -24,7 +25,8 @@ class FilterDB:
             for _id, body in fetchCursor:
                 print("Inserting searchable_body for id: %s" % _id, flush=True)
                 #print("fetchCursor: %s" % fetchCursor, flush=True)
-                convertToSting = str(body)
+                convertToSting = str(body.decode())
+                # print(convertToSting, flush=True)
                 removespaces = re.compile(r'\s+')
                 advertBody = re.sub(removespaces, ' ', convertToSting)
                 soup = BeautifulSoup(advertBody, 'html.parser')
