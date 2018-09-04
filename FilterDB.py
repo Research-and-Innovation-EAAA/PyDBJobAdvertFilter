@@ -42,7 +42,7 @@ class FilterDB:
 
     def walker(self, node):
         result = ''
-        if node.name is None or node.name in ['script', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
+        if node.name is None or node.name in ['script', 'noscript', 'iframe', 'img', 'style', 'a', 'input', 'textarea',
                                               'button', 'select', 'option', 'optiongroup', 'fieldset',
                                               'label']:
             return result
