@@ -51,7 +51,8 @@ class FilterDB:
         if node.name == 'div' and node.get('id') == 'heart_job_offers':
                 return result
         pattern = re.compile("ookie")
-        if pattern.search(node.get('class')):
+        classValue = node.get('class')
+        if classValue != None and  pattern.search(classValue[0]):
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
