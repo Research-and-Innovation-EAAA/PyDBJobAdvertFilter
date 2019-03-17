@@ -15,7 +15,13 @@ class FilterDB:
             cnx = connect(user=os.environ['MYSQL_USER'], password=os.environ['MYSQL_PASSWORD'],
                           host=os.environ['MYSQL_HOST'],
                           database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
-            fetchCursor = cnx.cursor()
+            fetchCursor = cnx.cursor(buffered=True)
+
+            # Enforce UTF-8 for the connection.
+            fetchCursor.execute('SET NAMES utf8mb4')
+            fetchCursor.execute("SET CHARACTER SET utf8mb4")
+            fetchCursor.execute("SET character_set_connection=utf8mb4")
+
             print('Now connecting to....: %s' % cnx.server_host, flush=True)
             #fetchCursor.execute('SELECT _id,body FROM annonce where _id=290')
             fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
@@ -52,7 +58,7 @@ class FilterDB:
                 return result
         pattern = re.compile("ookie")
         classValue = node.get('class')
-        if classValue != None and  pattern.search(classValue[0]):
+        if classValue != None and classValue and pattern.search(classValue[0]):
                 return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
