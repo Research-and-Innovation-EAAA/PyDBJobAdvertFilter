@@ -95,7 +95,7 @@ class FilterDB:
             cursor.execute("SET CHARACTER SET utf8mb4")
             cursor.execute("SET character_set_connection=utf8mb4")
 
-            searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ')
+            searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'"," ")
             cursor.execute("UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (searchable_body, condition))
             connection.commit()
         except Error as e:
