@@ -89,7 +89,13 @@ class FilterDB:
                                  host=os.environ['MYSQL_HOST'],
                                  database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
             cursor = connection.cursor()
-            searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'", " ")
+
+            # Enforce UTF-8 for the connection.
+            cursor.execute('SET NAMES utf8mb4')
+            cursor.execute("SET CHARACTER SET utf8mb4")
+            cursor.execute("SET character_set_connection=utf8mb4")
+
+            searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ')
             cursor.execute("UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (searchable_body, condition))
             connection.commit()
         except Error as e:
