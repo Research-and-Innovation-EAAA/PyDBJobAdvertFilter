@@ -1,10 +1,13 @@
 from mysql.connector import connect, Error
 from bs4 import BeautifulSoup
+import requests
+from requests.auth import HTTPDigestAuth
 import os
 import bs4
 import re
 import datetime
 import time
+import json
 
 class FilterDB:
 
@@ -23,21 +26,41 @@ class FilterDB:
             fetchCursor.execute("SET character_set_connection=utf8mb4")
 
             print('Now connecting to....: %s' % cnx.server_host, flush=True)
-            #fetchCursor.execute('SELECT _id,body FROM annonce where _id=290')
+            #fetchCursor.execute('SELECT _id,body FROM annonce where _id = 720989')
+
             fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
+
             print('Successfully connected to: %s' % cnx.server_host, flush=True)
             startTimer = time.time()
             print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'), flush=True)
             for _id, body in fetchCursor:
                 print("Inserting searchable_body for id: %s" % _id, flush=True)
                 #print("fetchCursor: %s" % fetchCursor, flush=True)
-                convertToSting = str(body.decode())
+                convertToSting = str(body.encode().decode())
                 # print(convertToSting, flush=True)
                 removespaces = re.compile(r'\s+')
                 advertBody = re.sub(removespaces, ' ', convertToSting)
                 soup = BeautifulSoup(advertBody, 'html.parser')
                 searchable_body = self.walker(soup)
-                self.insertToDB(searchable_body=searchable_body, condition=_id)
+                cvr = re.search("(?i)^(.*)(cvr.{0,10})(?!21367087)(([0-9] ?){8})(.*)$", searchable_body)
+                if cvr is not None:
+                    cvr = cvr.group(3).replace(" ", "")  # find cvr in third capture group and remove white spaces.
+                    print("Inserting CVR and company information for id: %s" % _id)
+                    self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
+
+                    # API CALL
+                    url = "http://distribution.virk.dk/cvr-permanent/_search"
+                    data = {"query": {"term": {"Vrvirksomhed.cvrNummer": cvr}}}
+                    data = json.dumps(data)
+                    headers = {'Content-type': 'application/json; charset=utf-8', 'user-agent': 'EAAA'}
+
+                    response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
+
+                    if response.status_code is 200:
+                        self.insertGenericToDB(key="json", value=response.text, condition=_id)
+                        self.insertToDB(searchable_body=searchable_body, condition=_id)
+                else:
+                    self.insertToDB(searchable_body=searchable_body, condition=_id)
                 # print(searchable_body , flush=True)
             elapsed = time.time() - startTimer
             duration = time.strftime('%H:%M:%S', time.gmtime(elapsed))
@@ -97,6 +120,29 @@ class FilterDB:
 
             searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'"," ")
             cursor.execute("UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (searchable_body, condition))
+            connection.commit()
+        except Error as e:
+            # If there is any case of error - Rollback
+            print(e.args, flush=True)
+            connection.rollback()
+        finally:
+            cursor.close()
+            connection.close()
+
+    def insertGenericToDB(self, key, value, condition):
+        global connection
+        global cursor
+        try:
+            connection = connect(user=os.environ['MYSQL_USER'], password=os.environ['MYSQL_PASSWORD'],
+                                 host=os.environ['MYSQL_HOST'],
+                                 database=os.environ['MYSQL_DATABASE'], port=os.environ['MYSQL_PORT'])
+            cursor = connection.cursor()
+
+            # Enforce UTF-8 for the connection.
+            cursor.execute('SET NAMES utf8mb4')
+            cursor.execute("SET CHARACTER SET utf8mb4")
+            cursor.execute("SET character_set_connection=utf8mb4")
+            cursor.execute("UPDATE annonce SET {key} = '{value}' WHERE _id = {condition}".format(key=key, value=value, condition=condition))
             connection.commit()
         except Error as e:
             # If there is any case of error - Rollback
