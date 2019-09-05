@@ -26,9 +26,9 @@ class FilterDB:
             fetchCursor.execute("SET character_set_connection=utf8mb4")
 
             print('Now connecting to....: %s' % cnx.server_host, flush=True)
-            #fetchCursor.execute('SELECT _id,body FROM annonce where _id = 762147')
+            fetchCursor.execute('SELECT _id,body FROM annonce where _id = 762147')
 
-            fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
+            #fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
 
             print('Successfully connected to: %s' % cnx.server_host, flush=True)
             startTimer = time.time()
@@ -49,6 +49,7 @@ class FilterDB:
                 #print("cvr_list:\n%s" % cvr_list, flush=True)
                 if cvr_list:
                     cvr = cvr_list[0][2].replace(" ", "")
+                if cvr is not "21367087":
                     print("Inserting cvr %s" % cvr)
                     self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
 
