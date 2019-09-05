@@ -47,13 +47,11 @@ class FilterDB:
                 cvr_reg = re.compile("(?i)((cvr|vat).{0,10})(([0-9] ?){8})")
                 cvr_list = cvr_reg.findall(searchable_body)
                 #print("cvr_list:\n%s" % cvr_list, flush=True)
+                cvr = None
                 if cvr_list:
                     cvr = cvr_list[0][2].replace(" ", "")
-                if cvr is not "21367087":
-                    print("Inserting cvr %s" % cvr)
-                    self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
-
-                    # API CALL
+                if cvr is not None and cvr != "21367087":
+                        # API CALL
                     url = "http://distribution.virk.dk/cvr-permanent/_search"
                     data = {"query": {"term": {"Vrvirksomhed.cvrNummer": cvr}}}
                     data = json.dumps(data)
@@ -62,6 +60,9 @@ class FilterDB:
                     response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
 
                     if response.status_code is 200:
+                        print("Inserting cvr %s" % cvr)
+                        self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
+
                         company = response.text
                         print("Inserting company json")
                         #print(company)
