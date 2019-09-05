@@ -26,7 +26,7 @@ class FilterDB:
             fetchCursor.execute("SET character_set_connection=utf8mb4")
 
             print('Now connecting to....: %s' % cnx.server_host, flush=True)
-            #fetchCursor.execute('SELECT _id,body FROM annonce where _id = 720989')
+            #fetchCursor.execute('SELECT _id,body FROM annonce where _id = 762147')
 
             fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody')
 
@@ -42,10 +42,14 @@ class FilterDB:
                 advertBody = re.sub(removespaces, ' ', convertToSting)
                 soup = BeautifulSoup(advertBody, 'html.parser')
                 searchable_body = self.walker(soup)
-                cvr = re.search("(?i)^(.*)(cvr.{0,10})(?!21367087)(([0-9] ?){8})(.*)$", searchable_body)
-                if cvr is not None:
-                    cvr = cvr.group(3).replace(" ", "")  # find cvr in third capture group and remove white spaces.
-                    print("Inserting CVR and company information for id: %s" % _id)
+                #print("searchable_body:\n%s", searchable_body)
+                #cvr_reg = re.compile("(cvr.{0,10})(?!21367087)(([0-9] ?){8})")
+                cvr_reg = re.compile("(?i)((cvr|vat).{0,10})(([0-9] ?){8})")
+                cvr_list = cvr_reg.findall(searchable_body)
+                #print("cvr_list:\n%s" % cvr_list, flush=True)
+                if cvr_list:
+                    cvr = cvr_list[0][2].replace(" ", "")
+                    print("Inserting cvr %s" % cvr)
                     self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
 
                     # API CALL
@@ -57,7 +61,10 @@ class FilterDB:
                     response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
 
                     if response.status_code is 200:
-                        self.insertGenericToDB(key="json", value=response.text, condition=_id)
+                        company = response.text
+                        print("Inserting company json")
+                        #print(company)
+                        self.insertGenericToDB(key="json", value=company, condition=_id)
                         self.insertToDB(searchable_body=searchable_body, condition=_id)
                 else:
                     self.insertToDB(searchable_body=searchable_body, condition=_id)
