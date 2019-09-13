@@ -32,13 +32,13 @@ class FilterDB:
             limit = 1000
             offset = 0
             while True:
-                fetchCursor.execute('SELECT _id,body FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody LIMIT {0},{1}'.format(offset, limit))
+                fetchCursor.execute('SELECT _id, body, cvr FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody LIMIT {0},{1}'.format(offset, limit))
                 offset = offset + limit
                 fetchCount = 0
 
                 startTimer = time.time()
                 print('{%s} Filter started' % datetime.datetime.now().strftime('%H:%M:%S'), flush=True)
-                for _id, body in fetchCursor:
+                for _id, body, cvr in fetchCursor:
                     fetchCount = fetchCount + 1
                     print("Inserting searchable_body for id: %s" % _id, flush=True)
                     #print("fetchCursor: %s" % fetchCursor, flush=True)
@@ -48,14 +48,16 @@ class FilterDB:
                     advertBody = re.sub(removespaces, ' ', convertToSting)
                     soup = BeautifulSoup(advertBody, 'html.parser')
                     searchable_body = self.walker(soup)
-                    #print("searchable_body:\n%s", searchable_body)
-                    #cvr_reg = re.compile("(cvr.{0,10})(?!21367087)(([0-9] ?){8})")
-                    cvr_reg = re.compile("(?i)((cvr|vat).{0,10})(([0-9] ?){8})")
-                    cvr_list = cvr_reg.findall(searchable_body)
-                    #print("cvr_list:\n%s" % cvr_list, flush=True)
-                    cvr = None
-                    if cvr_list:
-                        cvr = cvr_list[0][2].replace(" ", "")
+
+                    if cvr is None:
+                        cvr_reg = re.compile("(?i)((cvr|vat).{0,10})(([0-9] ?){8})")
+                        cvr_list = cvr_reg.findall(searchable_body)
+                        # print("cvr_list:\n%s" % cvr_list, flush=True)
+                        if cvr_list:
+                            cvr = cvr_list[0][2].replace(" ", "")
+                            print("Inserting cvr %s" % cvr)
+                            self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
+
                     if cvr is not None and cvr != "21367087":
                         # API CALL
                         url = "http://distribution.virk.dk/cvr-permanent/_search"
@@ -66,9 +68,6 @@ class FilterDB:
                         response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
 
                         if response.status_code is 200:
-                            print("Inserting cvr %s" % cvr)
-                            self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
-
                             company = response.text
                             print("Inserting company json")
                             #print(company)
@@ -95,11 +94,11 @@ class FilterDB:
                                               'label']:
             return result
         if node.name == 'div' and node.get('id') == 'heart_job_offers':
-                return result
+            return result
         pattern = re.compile("ookie")
         classValue = node.get('class')
         if classValue != None and classValue and pattern.search(classValue[0]):
-                return result
+            return result
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
                 searchTexts = ['(c|C)ookies?',
