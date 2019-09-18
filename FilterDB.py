@@ -1,5 +1,6 @@
 from mysql.connector import connect, Error
 from bs4 import BeautifulSoup
+from sqlescapy import sqlescape
 import requests
 from requests.auth import HTTPDigestAuth
 import os
@@ -70,7 +71,8 @@ class FilterDB:
                         response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
 
                         if response.status_code is 200:
-                            company = str(json.dumps(response.text))
+                            company = response.text
+
                             print("Inserting company json")
                             #print(company)
                             self.insertGenericToDB(key="json", value=company, condition=_id)
@@ -160,7 +162,9 @@ class FilterDB:
             cursor.execute('SET NAMES utf8mb4')
             cursor.execute("SET CHARACTER SET utf8mb4")
             cursor.execute("SET character_set_connection=utf8mb4")
-            cursor.execute("UPDATE annonce SET {key} = {value} WHERE _id = {condition}".format(key=key, value=value, condition=condition))
+            query = "UPDATE annonce SET {key} = '{value}' WHERE _id = {condition}".format(key=key, value=sqlescape(value), condition=condition)
+            #print(query)
+            cursor.execute(query)
             connection.commit()
         except Error as e:
             # If there is any case of error - Rollback
