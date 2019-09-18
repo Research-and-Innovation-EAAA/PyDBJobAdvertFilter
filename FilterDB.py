@@ -48,6 +48,7 @@ class FilterDB:
                     advertBody = re.sub(removespaces, ' ', convertToSting)
                     soup = BeautifulSoup(advertBody, 'html.parser')
                     searchable_body = self.walker(soup)
+                    jobindexCvr = "21367087"
 
                     if cvr is None:
                         cvr_reg = re.compile("(?i)((cvr|vat).{0,10})(([0-9] ?){8})")
@@ -55,10 +56,11 @@ class FilterDB:
                         # print("cvr_list:\n%s" % cvr_list, flush=True)
                         if cvr_list:
                             cvr = cvr_list[0][2].replace(" ", "")
-                            print("Inserting cvr %s" % cvr)
-                            self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
+                            if cvr != jobindexCvr:
+                                print("Inserting cvr %s" % cvr)
+                                self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
 
-                    if cvr is not None and cvr != "21367087":
+                    if cvr is not None and cvr != jobindexCvr:
                         # API CALL
                         url = "http://distribution.virk.dk/cvr-permanent/_search"
                         data = {"query": {"term": {"Vrvirksomhed.cvrNummer": cvr}}}
@@ -68,7 +70,7 @@ class FilterDB:
                         response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
 
                         if response.status_code is 200:
-                            company = response.text
+                            company = str(json.dumps(response.text))
                             print("Inserting company json")
                             #print(company)
                             self.insertGenericToDB(key="json", value=company, condition=_id)
@@ -158,7 +160,7 @@ class FilterDB:
             cursor.execute('SET NAMES utf8mb4')
             cursor.execute("SET CHARACTER SET utf8mb4")
             cursor.execute("SET character_set_connection=utf8mb4")
-            cursor.execute("UPDATE annonce SET {key} = '{value}' WHERE _id = {condition}".format(key=key, value=value, condition=condition))
+            cursor.execute("UPDATE annonce SET {key} = {value} WHERE _id = {condition}".format(key=key, value=value, condition=condition))
             connection.commit()
         except Error as e:
             # If there is any case of error - Rollback
