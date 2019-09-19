@@ -10,6 +10,7 @@ import datetime
 import time
 import json
 
+
 class FilterDB:
 
     def runFilter(self):
@@ -28,12 +29,14 @@ class FilterDB:
             fetchCursor.execute("SET character_set_connection=utf8mb4")
             print('Successfully connected to: %s' % cnx.server_host, flush=True)
 
-            #fetchCursor.execute('SELECT _id,body FROM annonce where _id = 762147')
+            # fetchCursor.execute('SELECT _id,body FROM annonce where _id = 762147')
 
             limit = 1000
             offset = 0
             while True:
-                fetchCursor.execute('SELECT _id, body, cvr FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody LIMIT {0},{1}'.format(offset, limit))
+                fetchCursor.execute(
+                    'SELECT _id, body, cvr FROM annonce where searchable_body IS NULL OR lastSearchableBody IS NULL OR lastUpdated < lastSearchableBody LIMIT {0},{1}'.format(
+                        offset, limit))
                 offset = offset + limit
                 fetchCount = 0
 
@@ -42,8 +45,8 @@ class FilterDB:
                 for _id, body, cvr in fetchCursor:
                     fetchCount = fetchCount + 1
                     print("Inserting searchable_body for id: %s" % _id, flush=True)
-                    #print("fetchCursor: %s" % fetchCursor, flush=True)
-                    convertToSting = str(body.encode().decode())
+                    # print("fetchCursor: %s" % fetchCursor, flush=True)
+                    convertToSting = str(body).encode().decode()
                     # print(convertToSting, flush=True)
                     removespaces = re.compile(r'\s+')
                     advertBody = re.sub(removespaces, ' ', convertToSting)
@@ -68,13 +71,11 @@ class FilterDB:
                         data = json.dumps(data)
                         headers = {'Content-type': 'application/json; charset=utf-8', 'user-agent': 'EAAA'}
 
-                        response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']), data=data, headers=headers)
+                        response = requests.post(url=url, auth=(os.environ['API_USERNAME'], os.environ['API_PASSWORD']),
+                                                 data=data, headers=headers)
 
                         if response.status_code is 200:
-                            company = response.text
-
-                            print("Inserting company json")
-                            #print(company)
+                            company = response.text.replace("'", "\\'")
                             self.insertGenericToDB(key="json", value=company, condition=_id)
                             self.insertToDB(searchable_body=searchable_body, condition=_id)
                     else:
@@ -108,8 +109,8 @@ class FilterDB:
                 searchTexts = ['(c|C)ookies?',
                                '(j|J)ava(s|S)cript (enable|support|in|is|)',
                                '(ktiver|with|nable) (j|J)ava(s|S)cript']
-                replaceTexts = [("kort(.{1,80})C","kort\1Ckort"),
-                                ("C(.{1,80})kort","Ckort\1kort")]
+                replaceTexts = [("kort(.{1,80})C", "kort\1Ckort"),
+                                ("C(.{1,80})kort", "Ckort\1kort")]
 
                 found = False
                 for filterExp in searchTexts:
@@ -117,7 +118,7 @@ class FilterDB:
                 if not found:
                     childString = child.string
                     for replaceTuple in replaceTexts:
-                        childString = re.sub(replaceTuple[0],replaceTuple[1],childString);
+                        childString = re.sub(replaceTuple[0], replaceTuple[1], childString);
                     result += childString
             else:
                 result += self.walker(child)
@@ -138,8 +139,10 @@ class FilterDB:
             cursor.execute("SET CHARACTER SET utf8mb4")
             cursor.execute("SET character_set_connection=utf8mb4")
 
-            searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'"," ")
-            cursor.execute("UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (searchable_body, condition))
+            searchable_body = searchable_body.replace("\\n", " ").replace('\\t', ' ').replace("'", " ")
+            cursor.execute(
+                "UPDATE annonce SET searchable_body = '%s', lastSearchableBody = CURRENT_TIMESTAMP() WHERE _id = %d" % (
+                searchable_body, condition))
             connection.commit()
         except Error as e:
             # If there is any case of error - Rollback
@@ -162,8 +165,10 @@ class FilterDB:
             cursor.execute('SET NAMES utf8mb4')
             cursor.execute("SET CHARACTER SET utf8mb4")
             cursor.execute("SET character_set_connection=utf8mb4")
-            query = "UPDATE annonce SET {key} = '{value}' WHERE _id = {condition}".format(key=key, value=sqlescape(value), condition=condition)
-            #print(query)
+            query = "UPDATE annonce SET {key} = '{value}' WHERE _id = {condition}".format(key=key,
+                                                                                          value=value,
+                                                                                          condition=condition)
+            # print(query)
             cursor.execute(query)
             connection.commit()
         except Error as e:
