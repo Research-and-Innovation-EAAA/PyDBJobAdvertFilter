@@ -55,7 +55,7 @@ class FilterDB:
                     jobindexCvr = "21367087"
 
                     if cvr is None:
-                        cvr_reg = re.compile("(?i)((cvr|vat).{0,10})(([0-9] ?){8})")
+                        cvr_reg = re.compile("(?i)((cvr).{0,10})(([0-9] ?){8})")
                         cvr_list = cvr_reg.findall(searchable_body)
                         # print("cvr_list:\n%s" % cvr_list, flush=True)
                         if cvr_list:
