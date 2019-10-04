@@ -76,6 +76,8 @@ class FilterDB:
 
                         if response.status_code is 200:
                             company = response.text.replace("'", "\\'")
+                            company = company.replace('\"', '\\"')
+                            #print(json.loads(company))
                             self.insertGenericToDB(key="json", value=company, condition=_id)
                             self.insertToDB(searchable_body=searchable_body, condition=_id)
                     else:
