@@ -82,6 +82,7 @@ class FilterDB:
                             self.insertGenericToDB(key="json", value=company, condition=_id)
                             self.insertToDB(searchable_body=searchable_body, condition=_id)
                     else:
+                        self.insertGenericToDB(key="json", value="", condition=_id)
                         self.insertToDB(searchable_body=searchable_body, condition=_id)
                         # print(searchable_body , flush=True)
                 elapsed = time.time() - startTimer
