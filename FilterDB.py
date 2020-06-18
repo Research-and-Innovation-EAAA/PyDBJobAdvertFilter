@@ -53,6 +53,7 @@ class FilterDB:
                     soup = BeautifulSoup(advertBody, 'html.parser')
                     searchable_body = self.walker(soup)
                     jobindexCvr = "21367087"
+                    ofirCvr = "19429903"
 
                     if cvr is None:
                         cvr_reg = re.compile("(?i)((cvr).{0,10})(([0-9] ?){8})")
@@ -60,11 +61,11 @@ class FilterDB:
                         # print("cvr_list:\n%s" % cvr_list, flush=True)
                         if cvr_list:
                             cvr = cvr_list[0][2].replace(" ", "")
-                            if cvr != jobindexCvr:
+                            if cvr != jobindexCvr and cvr != ofirCvr:
                                 print("Inserting cvr %s" % cvr)
                                 self.insertGenericToDB(key="cvr", value=cvr, condition=_id)
 
-                    if cvr is not None and cvr != jobindexCvr:
+                    if cvr is not None and cvr != jobindexCvr and cvr != ofirCvr:
                         # API CALL
                         url = "http://distribution.virk.dk/cvr-permanent/_search"
                         data = {"query": {"term": {"Vrvirksomhed.cvrNummer": cvr}}}
