@@ -104,10 +104,15 @@ class FilterDB:
             return result
         if node.name == 'div' and node.get('id') == 'heart_job_offers':
             return result
-        pattern = re.compile("ookie")
-        classValue = node.get('class')
-        if classValue != None and classValue and pattern.search(classValue[0]):
-            return result
+
+        # drop cookie and banner class nodes
+        filterPatternTexts = ["ookie", "anner"]
+        for filterPattern in filterPatternTexts:
+            pattern = re.compile(filterPattern)
+            classValue = node.get('class')
+            if classValue != None and classValue and pattern.search(classValue[0]):
+                return result
+
         for child in node.children:
             if type(child) is bs4.element.NavigableString:
                 searchTexts = ['(c|C)ookies?',
